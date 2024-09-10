@@ -55,9 +55,10 @@ func GetVersion(version string) (string, error) {
 	}
 }
 
-func AccessLog(clientIp string, mirror string, userAgent string) {
+func AccessLog(clientIp string, proxyIP string, mirror string, userAgent string) {
 	data := map[string]interface{}{
 		"clientIp":  clientIp,
+		"proxyIp":   proxyIP,
 		"mirror":    mirror,
 		"userAgent": userAgent,
 	}
@@ -85,6 +86,7 @@ func MirrorList(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(urlPath, "/")
 	clientIP := r.RemoteAddr
 	userAgent := r.Header.Get("User-Agent")
+	proxyIP := r.Header.Get("X-Forwarded-For")
 
 	if len(parts) < 3 {
 		http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -108,15 +110,15 @@ func MirrorList(w http.ResponseWriter, r *http.Request) {
 	} else {
 		if strings.HasPrefix(clientIP, prefixDC01) {
 			mirror := fmt.Sprintf("%s/%s/%s", mirrorDC01, versionPath, repoPath)
-			AccessLog(clientIP, mirror, userAgent)
+			AccessLog(clientIP, proxyIP, mirror, userAgent)
 			fmt.Fprintf(w, "%s\n", mirror)
 		} else if strings.HasPrefix(clientIP, prefixDC02) {
 			mirror := fmt.Sprintf("%s/%s/%s", mirrorDC02, versionPath, repoPath)
-			AccessLog(clientIP, mirror, userAgent)
+			AccessLog(clientIP, proxyIP, mirror, userAgent)
 			fmt.Fprintf(w, "%s\n", mirror)
 		} else {
 			mirror := fmt.Sprintf("%s/%s/%s", mirrorDefault, versionPath, repoPath)
-			AccessLog(clientIP, mirror, userAgent)
+			AccessLog(clientIP, proxyIP, mirror, userAgent)
 			fmt.Fprintf(w, "%s\n", mirror)
 		}
 	}
