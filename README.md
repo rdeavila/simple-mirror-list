@@ -1,6 +1,6 @@
 # Simple Mirror List
 
-Envirpnment variables
+Environment variables
 
 ```bash
 export DC01_MIRROR="http://10.10.1.1/almalinux"
